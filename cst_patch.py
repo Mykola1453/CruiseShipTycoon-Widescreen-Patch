@@ -229,17 +229,17 @@ if not help_arg:
         restore_backup()
 else:
     help_msg = """
-    This is patch that replaces default 1280x960 (4:3) resolution with a widescreen one, and fixes GUI to accomodate the new resultion, if possible.
+    This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's GUI to accommodate the new resolution, if possible.
     Run it in the root of the game to set the resolution to your screen's resolution.
-    Menu resolution and ingame resolution can have different value, so resolution of the menu is in 4:3 aspect ratio to avoid parts of menu being cropped.
+    Menu resolution and in-game resolution can have different value, so resolution of the menu is in 4:3 aspect ratio to avoid parts of the menu being cropped.
     (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below.\n
     Patch accepts the following arguments:
-    "path/to/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
+    "path/to/the/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
     (width)x(height) sets custom resolution, but note that GUI won't be fixed if chosen resolution is uncommon
     --wide_menu (-w) sets menu resolution to be widescreen too, but the menu will get partially cropped
     --letterbox (-l) sets that 4:3 resolution which is the closest to defined widescreen resolution
-    --restore (-r) restores game exe's backup and deletes user settings, if backup file is available
+    --restore (-r) restores the game exe's backup and deletes user settings, if backup file is available
     --help (-h) prints this message\n
-    P.S. Don't forget to change your game settings because game sets the lowest graphical settings by default.
+    P.S. Don't forget to change your game settings because the game tends to set the lowest graphical settings by default.
     """
     print(help_msg)
