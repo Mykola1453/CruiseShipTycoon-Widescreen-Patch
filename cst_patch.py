@@ -143,26 +143,28 @@ for arg in arguments:
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
-if not help_arg:
-    # Checking CRC of exe file
-    if not cst_path:
-        cst_path = 'CruiseShipTycoon.exe'
+if not cst_path:
+    cst_path = 'CruiseShipTycoon.exe'
 
-    if not os.path.isfile(cst_path):
-        print(f"File is not found!")
+if not os.path.isfile(cst_path):
+    print(f"File is not found!")
+
+if not help_arg and not restore_arg:
+    # Checking CRC of exe file
 
     calculated_crc = calculate_crc(cst_path)
 
-    v1001_crc = 1142252342 # Value for v1.0.0.1
+    v1001_1_crc = 1142252342 # v1.0.0.1
+    v1001_3_crc = 3759243516 # v1.0.0.1 + Patch 3
 
-    if calculated_crc == v1001_crc:
-        print(f"CRC matches the expected CRC: {v1001_crc}")
+    if calculated_crc == v1001_1_crc or calculated_crc == v1001_3_crc:
+        print(f"CRC matches the expected CRC")
 
         # Create a backup of the original file
         print(f"Making a backup")
         shutil.copy(cst_path, f"{cst_path}.bak")
 
-        print(f"Patching v1.0.0.1 version of the game")
+        print(f"Patching the game")
         # Open the file for reading in binary mode
         with open(cst_path, 'rb') as cst:
             # Read the contents of the file
@@ -176,10 +178,16 @@ if not help_arg:
             menu_width_le, menu_height_le = get_res_le(res_arg, True, True)
 
         # Main Menu resolution
-        cst_content = replace_bytes(cst_content, "20030000C744243858020000", f"{menu_width_le}C7442438{menu_height_le}")
+        if calculated_crc == v1001_1_crc:
+            cst_content = replace_bytes(cst_content, "20030000C744243858020000", f"{menu_width_le}C7442438{menu_height_le}")
+        elif calculated_crc == v1001_3_crc:
+            cst_content = replace_bytes(cst_content, "20030000C744243458020000", f"{menu_width_le}C7442434{menu_height_le}")
 
-        # Ingame resolution
-        cst_content = replace_bytes(cst_content, "00050000E8DCF80100C74030C0030000", f"{width_le}E8DCF80100C74030{height_le}")
+        # In-game resolution
+        if calculated_crc == v1001_1_crc:
+            cst_content = replace_bytes(cst_content, "00050000E8DCF80100C74030C0030000", f"{width_le}E8DCF80100C74030{height_le}")
+        elif calculated_crc == v1001_3_crc:
+            cst_content = replace_bytes(cst_content, "00050000E80AE50100C74030C0030000", f"{width_le}E80AE50100C74030{height_le}")
 
         # GUI fix
         # Hex value below, 68 01, corresponds to 360 and is tied to height of 960
@@ -223,10 +231,10 @@ if not help_arg:
         print("File has been patched successfully")
         print("Don't forget to set game resolution to 1280x960 in options!")
     else:
-        print(f"Wrong file! Expected {v1001_crc} CRC, but got {calculated_crc}")
-
-    if restore_arg:
-        restore_backup()
+        print(f"Wrong file! Didn't recognize CRC: {calculated_crc}")
+        # restore_backup()
+elif restore_arg:
+    restore_backup()
 else:
     help_msg = """
     This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's GUI to accommodate the new resolution, if possible.
