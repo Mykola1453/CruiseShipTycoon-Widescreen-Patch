@@ -30,7 +30,7 @@ def replace_bytes(content, search, replace):
     return content.replace(search_bytes, replace_bytes)
 
 def get_res_le(res=False, letterbox=False, menu=False):
-    common_resolutions = {
+    tested_resolutions = {
         "1024x768": (768, 1024),
         "1280x720": (720, 1280),
         "1280x800": (800, 1280),
@@ -39,9 +39,7 @@ def get_res_le(res=False, letterbox=False, menu=False):
         "1366x768": (768, 1366),
         "1440x1080": (1080, 1440),
         "1600x900": (900, 1600),
-        "1920x1080": (1080, 1920),
-        "2560x1440": (1440, 2560),
-        "3840x2160": (2160, 3840)
+        "1920x1080": (1080, 1920)
     }
 
     if res:
@@ -90,13 +88,13 @@ def get_res_le(res=False, letterbox=False, menu=False):
 
     # Check if the actual resolution matches any of the common resolutions
     matching_resolution = None
-    for resolution, (expected_height, expected_width) in common_resolutions.items():
+    for resolution, (expected_height, expected_width) in tested_resolutions.items():
         if width == expected_width and height == expected_height:
             matching_resolution = resolution
             break
 
     if not matching_resolution:
-        print(f"WARNING: {width}x{height} resolution is uncommon, things may break!")
+        print(f"WARNING: {width}x{height} resolution was not tested, things may break!")
 
     # Convert the screen resolution to little-endian hexadecimal values
     width_le = struct.pack('<I', width).hex()
@@ -190,28 +188,11 @@ if not help_arg and not restore_arg:
             cst_content = replace_bytes(cst_content, "00050000E80AE50100C74030C0030000", f"{width_le}E80AE50100C74030{height_le}")
 
         # GUI fix
-        # Hex value below, 68 01, corresponds to 360 and is tied to height of 960
+        # Hex value below, 68 01, corresponds to 360 and is tied to height of 960.
+        # Namely, it's height - 600
         # We need to correct it for the GUI to be placed right
-        print(f"Attempting to fix GUI")
-        if int.from_bytes(bytes.fromhex(height_le), byteorder='little') == 2160:
-            # Needs testing
-            fix_value = 1560
-        elif int.from_bytes(bytes.fromhex(height_le), byteorder='little') == 1440:
-            # Needs testing
-            fix_value = 840
-        elif int.from_bytes(bytes.fromhex(height_le), byteorder='little') == 1080:
-            fix_value = 480
-        elif int.from_bytes(bytes.fromhex(height_le), byteorder='little') == 900:
-            fix_value = 300
-        elif int.from_bytes(bytes.fromhex(height_le), byteorder='little') == 800:
-            fix_value = 201
-        elif int.from_bytes(bytes.fromhex(height_le), byteorder='little') == 768:
-            fix_value = 169
-        elif int.from_bytes(bytes.fromhex(height_le), byteorder='little') == 720:
-            fix_value = 120
-        else:
-            # Default value for the height of 960
-            fix_value = 360
+        print(f"Fixing GUI")
+        fix_value = int.from_bytes(bytes.fromhex(height_le), byteorder='little') - 600
 
         # Convert fix value to little-endian hexadecimal value
         fix_le = struct.pack('<I', fix_value).hex()
@@ -219,10 +200,7 @@ if not help_arg and not restore_arg:
         cst_content = replace_bytes(cst_content, "BD68010000C7", f"BD{fix_le}C7")
         cst_content = replace_bytes(cst_content, "000500007509BD68010000", f"{width_le}7509BD{fix_le}")
 
-        if fix_value == 360:
-            print(f"WARNING: No GUI fix for chosen resolution, things may break!")
-        else:
-            print(f"GUI is fixed")
+        print(f"GUI is fixed")
 
         # Save the modified content to a new file
         with open(cst_path, 'wb') as cst:
@@ -237,7 +215,7 @@ elif restore_arg:
     restore_backup()
 else:
     help_msg = """
-    This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's GUI to accommodate the new resolution, if possible.
+    This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's GUI to accommodate the new resolution.
     Run it in the root of the game to set the resolution to your screen's resolution.
     Menu resolution and in-game resolution can have different value, so resolution of the menu is in 4:3 aspect ratio to avoid parts of the menu being cropped.
     (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below.\n
