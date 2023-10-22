@@ -232,7 +232,7 @@ else:
     This is patch that replaces default 1280x960 (4:3) resolution with a widescreen one, and fixes GUI to accomodate the new resultion, if possible.
     Run it in the root of the game to set the resolution to your screen's resolution.
     Menu resolution and ingame resolution can have different value, so resolution of the menu is in 4:3 aspect ratio to avoid parts of menu being cropped.
-    (On Linux, you'll need to have pyautogui pip package to use your screen resolution or define it manually, as explained below.\n
+    (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below.\n
     Patch accepts the following arguments:
     "path/to/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
     (width)x(height) sets custom resolution, but note that GUI won't be fixed if chosen resolution is uncommon
