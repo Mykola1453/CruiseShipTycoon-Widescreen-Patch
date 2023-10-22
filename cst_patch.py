@@ -191,7 +191,7 @@ if not help_arg and not restore_arg:
         # Hex value below, 68 01, corresponds to 360 and is tied to height of 960.
         # Namely, it's height - 600
         # We need to correct it for the GUI to be placed right
-        print(f"Fixing GUI")
+        print("Fixing GUI")
         fix_value = int.from_bytes(bytes.fromhex(height_le), byteorder='little') - 600
 
         # Convert fix value to little-endian hexadecimal value
@@ -199,8 +199,6 @@ if not help_arg and not restore_arg:
 
         cst_content = replace_bytes(cst_content, "BD68010000C7", f"BD{fix_le}C7")
         cst_content = replace_bytes(cst_content, "000500007509BD68010000", f"{width_le}7509BD{fix_le}")
-
-        print(f"GUI is fixed")
 
         # Save the modified content to a new file
         with open(cst_path, 'wb') as cst:
