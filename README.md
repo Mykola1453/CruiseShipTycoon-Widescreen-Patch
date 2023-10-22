@@ -11,7 +11,7 @@ Note that the game tends to set the lowest graphical settings possible, so you m
 The patch accepts the following arguments:
 
     "path/to/the/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
-    (width)x(height) sets custom resolution, but note that GUI won't be fixed if chosen resolution is uncommon
+    (width)x(height) sets custom resolution
     --wide_menu (-w) sets menu resolution to be widescreen too, but the menu will get partially cropped
     --letterbox (-l) sets that 4:3 resolution which is the closest to defined widescreen resolution
     --restore (-r) restores the game exe's backup and deletes user settings, if backup file is available
