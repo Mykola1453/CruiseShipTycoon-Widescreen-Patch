@@ -81,6 +81,8 @@ if calculated_crc == v1001_crc:
     cst_content = replace_bytes(cst_content, "00050000E8DCF80100C74030C0030000", f"{width_le}E8DCF80100C74030{height_le}")
 
     # GUI fixes
+    # cst_content = replace_bytes(cst_content, "BD68010000C7", "BDE0010000C7") # for 1920x1080
+    # cst_content = replace_bytes(cst_content, "000500007509BD68010000", "800700007509BDE0010000") # for 1920x1080
 
     # Save the modified content to a new file
     with open(cst_path, 'wb') as cst:
