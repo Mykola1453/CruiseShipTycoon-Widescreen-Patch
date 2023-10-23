@@ -82,7 +82,7 @@ def get_res_le(res=False, letterbox=False, menu=False):
 
         if wide_menu_arg:
             print(f"Changing menu resolution to {width}x{height}")
-            print(f"WARNING: Menu will likely be cropped!")
+            print(f"Note: menu will likely be cropped!")
     else:
         print(f"Changing menu resolution to {width}x{height}")
 
@@ -94,7 +94,7 @@ def get_res_le(res=False, letterbox=False, menu=False):
             break
 
     if not matching_resolution:
-        print(f"WARNING: {width}x{height} resolution was not tested, things may break!")
+        print(f"Note: {width}x{height} resolution was not tested, things may break!")
 
     # Convert the screen resolution to little-endian hexadecimal values
     width_le = struct.pack('<I', width).hex()
@@ -192,13 +192,14 @@ if not help_arg and not restore_arg:
         # Namely, it's height - 600
         # We need to correct it for the GUI to be placed right
         print("Fixing GUI")
-        fix_value = int.from_bytes(bytes.fromhex(height_le), byteorder='little') - 600
+        fix_height = int.from_bytes(bytes.fromhex(height_le), byteorder='little') - 600
+        fix_width = int.from_bytes(bytes.fromhex(width_le), byteorder='little') - 800
 
         # Convert fix value to little-endian hexadecimal value
-        fix_le = struct.pack('<I', fix_value).hex()
+        fix_h_le = struct.pack('<I', fix_height).hex()
 
-        cst_content = replace_bytes(cst_content, "BD68010000C7", f"BD{fix_le}C7")
-        cst_content = replace_bytes(cst_content, "000500007509BD68010000", f"{width_le}7509BD{fix_le}")
+        cst_content = replace_bytes(cst_content, "BD68010000C7", f"BD{fix_h_le}C7")
+        cst_content = replace_bytes(cst_content, "000500007509BD68010000", f"{width_le}7509BD{fix_h_le}")
 
         # Save the modified content to a new file
         with open(cst_path, 'wb') as cst:
@@ -208,7 +209,7 @@ if not help_arg and not restore_arg:
         print("Don't forget to set game resolution to 1280x960 in options!")
     else:
         print(f"Wrong file! Didn't recognize CRC: {calculated_crc}")
-        # restore_backup()
+        restore_backup()
 elif restore_arg:
     restore_backup()
 else:

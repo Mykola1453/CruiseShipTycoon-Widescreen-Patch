@@ -1,7 +1,2 @@
-# Ignore everything
-*
-
-# But not these files...
-!.gitignore
-!cst_patch.py
-!/images/*
+data/*
+test*
