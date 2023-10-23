@@ -226,7 +226,7 @@ else:
     --wide_menu (-w) sets menu resolution to be widescreen too, but the menu can get partially cropped
     --letterbox (-l) sets that 4:3 resolution which is the closest to the defined widescreen resolution
     --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
-    --help (-h) prints this message\n
+    --help (-h) prints help message\n
     P.S. Don't forget to change your game settings because the game tends to set the lowest graphical settings by default.
     """
     print(help_msg)
