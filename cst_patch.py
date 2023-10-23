@@ -7,7 +7,6 @@ import sys
 import os
 import re
 
-
 # Patches CruiseShipTycoon.exe to support widescreen resolutions
 # replaces the default '1280x960' resolution
 
@@ -20,17 +19,13 @@ def calculate_crc(file_path):
             if not chunk:
                 break
             crc = zlib.crc32(chunk, crc)
-
     crc = crc & 0xFFFFFFFF
-
     return crc
-
 
 def replace_bytes(content, search, replace):
     search_bytes = bytes.fromhex(search)
     replace_bytes = bytes.fromhex(replace)
     return content.replace(search_bytes, replace_bytes)
-
 
 def get_res_le(res=False, letterbox=False, menu=False):
     tested_resolutions = {
@@ -46,8 +41,7 @@ def get_res_le(res=False, letterbox=False, menu=False):
     }
 
     if res:
-        print(f"Using custom resolution")
-        # Using defined resolution
+        print("Using custom resolution")
         nums = res.split('x')
         if len(nums) == 2:
             width = int(nums[0])
@@ -85,7 +79,7 @@ def get_res_le(res=False, letterbox=False, menu=False):
 
         if wide_menu_arg:
             print(f"Changing menu resolution to {width}x{height}")
-            print(f"Menu will likely get cropped!")
+            print("Menu will likely get cropped!")
     else:
         print(f"Changing menu resolution to {width}x{height}")
 
@@ -121,7 +115,7 @@ def restore_backup():
         print(f"Restoring backup")
         shutil.copy(f"{cst_path}.bak", cst_path)
     else:
-        print(f"No backup found")
+        print(f"No backup is found")
 
 
 # Command line arguments
@@ -150,11 +144,10 @@ if not cst_path:
     cst_path = 'CruiseShipTycoon.exe'
 
 if not os.path.isfile(cst_path):
-    print(f"File is not found!")
+    print("File is not found!")
 
 if not help_arg and not restore_arg:
     # Checking CRC of exe file
-
     calculated_crc = calculate_crc(cst_path)
 
     tested_versions = [
@@ -163,12 +156,11 @@ if not help_arg and not restore_arg:
     ]
 
     if calculated_crc in tested_versions:
-
         # Create a backup of the original file
         print(f"Making a backup")
         shutil.copy(cst_path, f"{cst_path}.bak")
 
-        print(f"Patching the game")
+        print("Patching the game")
         # Open the file for reading in binary mode
         with open(cst_path, 'rb') as cst:
             # Read the contents of the file
@@ -227,13 +219,13 @@ else:
     This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's GUI to accommodate the new resolution.
     Run it in the root of the game to set the resolution to your screen's resolution.
     Menu resolution and in-game resolution can have different value, so resolution of the menu is in 4:3 aspect ratio to avoid parts of the menu being cropped.
-    (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below.\n
+    (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below)\n
     Patch accepts the following arguments:
     "path/to/the/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
     (width)x(height) sets custom resolution
-    --wide_menu (-w) sets menu resolution to be widescreen too, but the menu will get partially cropped
-    --letterbox (-l) sets that 4:3 resolution which is the closest to defined widescreen resolution
-    --restore (-r) restores the game exe's backup and deletes user settings, if backup file is available
+    --wide_menu (-w) sets menu resolution to be widescreen too, but the menu can get partially cropped
+    --letterbox (-l) sets that 4:3 resolution which is the closest to the defined widescreen resolution
+    --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
     --help (-h) prints this message\n
     P.S. Don't forget to change your game settings because the game tends to set the lowest graphical settings by default.
     """
