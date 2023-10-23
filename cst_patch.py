@@ -209,7 +209,7 @@ if not help_arg and not restore_arg:
         print("Don't forget to set game resolution to 1280x960 in options!")
     else:
         print(f"Wrong file! Didn't recognize CRC: {calculated_crc}")
-        restore_backup()
+        # restore_backup()
 elif restore_arg:
     restore_backup()
 else:
