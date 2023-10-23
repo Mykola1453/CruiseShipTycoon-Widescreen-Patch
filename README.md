@@ -2,7 +2,7 @@
 
 ![Cruise Ship Tycoon, 1920x1080](images/cst_1920x1080.jpg)
 
-This patch is for Cruise Ship Tycoon (2003). It replaces the default 1280x960 (4:3) resolution with a widescreen one. The patch also fixes the game's GUI to accommodate the new resolution.
+This patch is for Cruise Ship Tycoon (2003). It replaces the default 1280x960 (4:3) resolution with a widescreen one.
 
 To run it, open terminal in the game's folder and execute command `python .\cst_patch.py`. By default it'll try to detect the resolution of your screen and match to that, but, if on **Linux**, you'll need to install following pip package: `pip install pyautogui` (or you can define your resolution, using the arguments as explained below).
 
