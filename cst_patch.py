@@ -7,6 +7,7 @@ import sys
 import os
 import re
 
+
 # Patches CruiseShipTycoon.exe to support widescreen resolutions
 # replaces the default '1280x960' resolution
 
@@ -24,10 +25,12 @@ def calculate_crc(file_path):
 
     return crc
 
+
 def replace_bytes(content, search, replace):
     search_bytes = bytes.fromhex(search)
     replace_bytes = bytes.fromhex(replace)
     return content.replace(search_bytes, replace_bytes)
+
 
 def get_res_le(res=False, letterbox=False, menu=False):
     tested_resolutions = {
@@ -82,7 +85,7 @@ def get_res_le(res=False, letterbox=False, menu=False):
 
         if wide_menu_arg:
             print(f"Changing menu resolution to {width}x{height}")
-            print(f"Note: menu will likely be cropped!")
+            print(f"Menu will likely get cropped!")
     else:
         print(f"Changing menu resolution to {width}x{height}")
 
@@ -94,13 +97,14 @@ def get_res_le(res=False, letterbox=False, menu=False):
             break
 
     if not matching_resolution:
-        print(f"Note: {width}x{height} resolution was not tested, things may break!")
+        print(f"Note: {width}x{height} resolution was not tested, it might or might not work.")
 
     # Convert the screen resolution to little-endian hexadecimal values
     width_le = struct.pack('<I', width).hex()
     height_le = struct.pack('<I', height).hex()
 
     return width_le, height_le
+
 
 def restore_backup():
     if os.path.isfile(f"{cst_path}.bak"):
@@ -118,6 +122,7 @@ def restore_backup():
         shutil.copy(f"{cst_path}.bak", cst_path)
     else:
         print(f"No backup found")
+
 
 # Command line arguments
 arguments = sys.argv
@@ -152,11 +157,12 @@ if not help_arg and not restore_arg:
 
     calculated_crc = calculate_crc(cst_path)
 
-    v1001_1_crc = 1142252342 # v1.0.0.1
-    v1001_3_crc = 3759243516 # v1.0.0.1 + Patch 3
+    tested_versions = [
+        1142252342,  # v1.0.0.1
+        3759243516  # v1.0.0.1 + Patch 3
+    ]
 
-    if calculated_crc == v1001_1_crc or calculated_crc == v1001_3_crc:
-        print(f"CRC matches the expected CRC")
+    if calculated_crc in tested_versions:
 
         # Create a backup of the original file
         print(f"Making a backup")
@@ -176,16 +182,20 @@ if not help_arg and not restore_arg:
             menu_width_le, menu_height_le = get_res_le(res_arg, True, True)
 
         # Main Menu resolution
-        if calculated_crc == v1001_1_crc:
-            cst_content = replace_bytes(cst_content, "20030000C744243858020000", f"{menu_width_le}C7442438{menu_height_le}")
-        elif calculated_crc == v1001_3_crc:
-            cst_content = replace_bytes(cst_content, "20030000C744243458020000", f"{menu_width_le}C7442434{menu_height_le}")
+        if calculated_crc == tested_versions[0]:
+            cst_content = replace_bytes(cst_content, "20030000C744243858020000",
+                                        f"{menu_width_le}C7442438{menu_height_le}")
+        elif calculated_crc == tested_versions[1]:
+            cst_content = replace_bytes(cst_content, "20030000C744243458020000",
+                                        f"{menu_width_le}C7442434{menu_height_le}")
 
         # In-game resolution
-        if calculated_crc == v1001_1_crc:
-            cst_content = replace_bytes(cst_content, "00050000E8DCF80100C74030C0030000", f"{width_le}E8DCF80100C74030{height_le}")
-        elif calculated_crc == v1001_3_crc:
-            cst_content = replace_bytes(cst_content, "00050000E80AE50100C74030C0030000", f"{width_le}E80AE50100C74030{height_le}")
+        if calculated_crc == tested_versions[0]:
+            cst_content = replace_bytes(cst_content, "00050000E8DCF80100C74030C0030000",
+                                        f"{width_le}E8DCF80100C74030{height_le}")
+        elif calculated_crc == tested_versions[1]:
+            cst_content = replace_bytes(cst_content, "00050000E80AE50100C74030C0030000",
+                                        f"{width_le}E80AE50100C74030{height_le}")
 
         # GUI fix
         # Hex value below, 68 01, corresponds to 360 and is tied to height of 960.
