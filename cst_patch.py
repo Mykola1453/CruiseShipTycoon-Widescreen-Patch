@@ -37,7 +37,10 @@ def get_res_le(res=False, letterbox=False, menu=False):
         "1366x768": (768, 1366),
         "1440x1080": (1080, 1440),
         "1600x900": (900, 1600),
-        "1920x1080": (1080, 1920)
+        "1920x1080": (1080, 1920),
+        "1920x1440": (1920, 1440),
+        "2560x1440": (2560, 1440),
+        "3840x2160": (3840, 2160)
     }
 
     if res:
@@ -74,6 +77,11 @@ def get_res_le(res=False, letterbox=False, menu=False):
             # using 1024x768
             width = 1024
             height = 768
+        elif (width == 2880 and height == 2160):
+            # The same as above
+            # using 1920x1440
+            width = 1920
+            height = 1440
     if not menu:
         print(f"Changing resolution to {width}x{height}")
 
@@ -83,15 +91,22 @@ def get_res_le(res=False, letterbox=False, menu=False):
     else:
         print(f"Changing menu resolution to {width}x{height}")
 
-    # Check if the actual resolution matches any of the common resolutions
-    matching_resolution = None
-    for resolution, (expected_height, expected_width) in tested_resolutions.items():
-        if width == expected_width and height == expected_height:
-            matching_resolution = resolution
+    if height == 2160:
+        print(" NOTE: While the game can be displayed in 4K resolution,")
+        print(" it will also crash a few times, probably due to engine limitation.")
+        print(" Can't really promise a stable gameplay, but worth a try.")
+        print(" If the game still doesn't launch in 4K after a few tries, or if 4K just doesn't work,")
+        print(" feel free to restore backup and patch again, setting resolution to 2560x1440 or lower.")
+
+    # Check if the actual resolution matches any of the tested resolutions
+    matching_resolution = False
+    for resolution, (expected_width, expected_height) in tested_resolutions.items():
+        if (width == expected_width and height == expected_height):
+            matching_resolution = True
             break
 
     if not matching_resolution:
-        print(f"Note: {width}x{height} resolution was not tested, it might or might not work.")
+        print(f" NOTE: {width}x{height} resolution was not tested, it might or might not work.")
 
     # Convert the screen resolution to little-endian hexadecimal values
     width_le = struct.pack('<I', width).hex()
@@ -226,7 +241,6 @@ else:
     --wide_menu (-w) sets menu resolution to be widescreen too, but the menu can get partially cropped
     --letterbox (-l) sets that 4:3 resolution which is the closest to the defined widescreen resolution
     --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
-    --help (-h) prints help message\n
-    P.S. Don't forget to change your game settings because the game tends to set the lowest graphical settings by default.
+    --help (-h) prints help message
     """
     print(help_msg)
