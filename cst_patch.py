@@ -204,11 +204,11 @@ if not help_arg and not restore_arg:
             cst_content = replace_bytes(cst_content, "00050000E80AE50100C74030C0030000",
                                         f"{width_le}E80AE50100C74030{height_le}")
 
-        # GUI fix
+        # HUD fix
         # Hex value below, 68 01, corresponds to 360 and is tied to height of 960.
         # Namely, it's height - 600
-        # We need to correct it for the GUI to be placed right
-        print("Fixing GUI")
+        # We need to correct it for the HUD to be placed right
+        print("Fixing HUD")
         fix_height = int.from_bytes(bytes.fromhex(height_le), byteorder='little') - 600
         fix_width = int.from_bytes(bytes.fromhex(width_le), byteorder='little') - 800
 
@@ -231,7 +231,7 @@ elif restore_arg:
     restore_backup()
 else:
     help_msg = """
-    This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's GUI to accommodate the new resolution.
+    This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's HUD to accommodate the new resolution.
     Run it in the root of the game to set the resolution to your screen's resolution.
     Menu resolution and in-game resolution can have different value, so resolution of the menu is in 4:3 aspect ratio to avoid parts of the menu being cropped.
     (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below)\n
