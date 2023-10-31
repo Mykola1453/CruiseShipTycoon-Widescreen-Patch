@@ -108,16 +108,12 @@ def get_res_le(res=False, letterbox=False, menu=False):
     if not matching_resolution:
         print(f" NOTE: {width}x{height} resolution was not tested, it might or might not work.")
 
-    # Convert the screen resolution to little-endian hexadecimal values
-    width_le = struct.pack('<I', width).hex()
-    height_le = struct.pack('<I', height).hex()
-
-    return width_le, height_le
+    return width, height
 
 
 def restore_backup():
-    if os.path.isfile(f"{cst_path}.bak"):
-        directory = os.path.dirname(cst_path)
+    if os.path.isfile(f"{cruise_path}.bak"):
+        directory = os.path.dirname(cruise_path)
         if directory:
             settings_path = f"{directory}/settings.dat"
         else:
@@ -128,14 +124,14 @@ def restore_backup():
             os.remove(settings_path)
 
         print(f"Restoring backup")
-        shutil.copy(f"{cst_path}.bak", cst_path)
+        shutil.copy(f"{cruise_path}.bak", cruise_path)
     else:
         print(f"No backup is found")
 
 
 # Command line arguments
 arguments = sys.argv
-cst_path = False
+cruise_path = False
 res_arg = False
 restore_arg = False
 wide_menu_arg = False
@@ -143,7 +139,7 @@ letterbox_arg = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
-        cst_path = arg
+        cruise_path = arg
     elif re.match(r'\d+x\d+', arg):
         res_arg = arg
     elif arg == "--restore" or arg == "-r":
@@ -155,15 +151,15 @@ for arg in arguments:
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
-if not cst_path:
-    cst_path = 'CruiseShipTycoon.exe'
+if not cruise_path:
+    cruise_path = 'CruiseShipTycoon.exe'
 
-if not os.path.isfile(cst_path):
+if not os.path.isfile(cruise_path):
     print("File is not found!")
 
 if not help_arg and not restore_arg:
     # Checking CRC of exe file
-    calculated_crc = calculate_crc(cst_path)
+    calculated_crc = calculate_crc(cruise_path)
 
     tested_versions = [
         1142252342,  # v1.0.0.1
@@ -173,35 +169,41 @@ if not help_arg and not restore_arg:
     if calculated_crc in tested_versions:
         # Create a backup of the original file
         print(f"Making a backup")
-        shutil.copy(cst_path, f"{cst_path}.bak")
+        shutil.copy(cruise_path, f"{cruise_path}.bak")
 
         print("Patching the game")
         # Open the file for reading in binary mode
-        with open(cst_path, 'rb') as cst:
+        with open(cruise_path, 'rb') as cruise:
             # Read the contents of the file
-            cst_content = cst.read()
+            cruise_content = cruise.read()
+        
+        # Getting the resolution and converting the resolution to hexadecimal (little endian)
+        width, height = get_res_le(res_arg, letterbox_arg)
 
-        # Converting the resolution to hexadecimal (little endian)
-        width_le, height_le = get_res_le(res_arg, letterbox_arg)
+        width_le = struct.pack('<I', width).hex()
+        height_le = struct.pack('<I', height).hex()
+
         if wide_menu_arg:
             menu_width_le, menu_height_le = width_le, height_le
         else:
-            menu_width_le, menu_height_le = get_res_le(res_arg, True, True)
+            menu_width, menu_height = get_res_le(res_arg, True, True)
+            menu_width_le = struct.pack('<I', menu_width).hex()
+            menu_height_le = struct.pack('<I', menu_height).hex()
 
         # Main Menu resolution
         if calculated_crc == tested_versions[0]:
-            cst_content = replace_bytes(cst_content, "20030000C744243858020000",
+            cruise_content = replace_bytes(cruise_content, "20030000C744243858020000",
                                         f"{menu_width_le}C7442438{menu_height_le}")
         elif calculated_crc == tested_versions[1]:
-            cst_content = replace_bytes(cst_content, "20030000C744243458020000",
+            cruise_content = replace_bytes(cruise_content, "20030000C744243458020000",
                                         f"{menu_width_le}C7442434{menu_height_le}")
 
         # In-game resolution
         if calculated_crc == tested_versions[0]:
-            cst_content = replace_bytes(cst_content, "00050000E8DCF80100C74030C0030000",
+            cruise_content = replace_bytes(cruise_content, "00050000E8DCF80100C74030C0030000",
                                         f"{width_le}E8DCF80100C74030{height_le}")
         elif calculated_crc == tested_versions[1]:
-            cst_content = replace_bytes(cst_content, "00050000E80AE50100C74030C0030000",
+            cruise_content = replace_bytes(cruise_content, "00050000E80AE50100C74030C0030000",
                                         f"{width_le}E80AE50100C74030{height_le}")
 
         # HUD fix
@@ -209,18 +211,17 @@ if not help_arg and not restore_arg:
         # Namely, it's height - 600
         # We need to correct it for the HUD to be placed right
         print("Fixing HUD")
-        fix_height = int.from_bytes(bytes.fromhex(height_le), byteorder='little') - 600
-        fix_width = int.from_bytes(bytes.fromhex(width_le), byteorder='little') - 800
+        fix_height = height - 600
 
         # Convert fix value to little-endian hexadecimal value
         fix_h_le = struct.pack('<I', fix_height).hex()
 
-        cst_content = replace_bytes(cst_content, "BD68010000C7", f"BD{fix_h_le}C7")
-        cst_content = replace_bytes(cst_content, "000500007509BD68010000", f"{width_le}7509BD{fix_h_le}")
+        cruise_content = replace_bytes(cruise_content, "BD68010000C7", f"BD{fix_h_le}C7")
+        cruise_content = replace_bytes(cruise_content, "000500007509BD68010000", f"{width_le}7509BD{fix_h_le}")
 
         # Save the modified content to a new file
-        with open(cst_path, 'wb') as cst:
-            cst.write(cst_content)
+        with open(cruise_path, 'wb') as cruise:
+            cruise.write(cruise_content)
 
         print("File has been patched successfully")
         print("Don't forget to set game resolution to 1280x960 in options!")
