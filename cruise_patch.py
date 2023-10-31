@@ -167,6 +167,13 @@ if not help_arg and not restore_arg:
     ]
 
     if calculated_crc in tested_versions:
+        # Notice if game version is not the latest
+        if calculated_crc == 1142252342:
+            print(" FYI: this is not the latest version of the game")
+            print(" Not that it matters, this patch will work as is.")
+            print(" But if you wish, look for Patch 3 of the game,")
+            print(" and patch again after updating.")
+
         # Create a backup of the original file
         print(f"Making a backup")
         shutil.copy(cruise_path, f"{cruise_path}.bak")
