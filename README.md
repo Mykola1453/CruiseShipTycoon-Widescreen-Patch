@@ -10,7 +10,7 @@ By default, it will try to detect the resolution of your screen and match to tha
 
 Alternatively, you can try and define custom resolution and also path to game's exe like that: `python .\cruise_patch.py "path/to/the/game.exe" 1280x800`. Run `python .\cruise_patch.py -h` to see all possible arguments. To undo the patch, run `python .\cruise_patch.py -r` to restore the unpatched exe from the backup made during patch execution. 
 
-Each game can have its own specifics or issues, which you can check in the table of patches below. I try to eliminate all except the minor issues, so nothing game breaking. At the same time, I tested resolutions selected resolutions, and everything seems to work, but I didn't test the games extensively. I also didn't test them under Wine (should work) or in multi-monitor configuration (you're welcome to try).
+Each game can have its own specifics or issues, which you can check in the table of patches below. I try to eliminate all except the minor issues, so nothing game breaking. At the same time, while I tested the selected resolutions, and everything seems to work, I didn't test the games extensively. I also didn't test them under Wine (should work) or in multi-monitor configuration (you're welcome to try).
 
 Also, look for table of examples for screenshots of the patched games in the 3 most common resolutions: 1280x800 (Steam Deck resolution), 1920x1080, 3840x2160 (4K).
 
