@@ -186,8 +186,8 @@ if not help_arg and not restore_arg:
     calculated_crc = calculate_crc(cruise_path)
 
     tested_versions = [
-        1142252342,  # v1.0.0.1
-        3759243516  # Patch 3
+        1142252342, # old version
+        3759243516  # Update 3
     ]
 
     if calculated_crc in tested_versions:
@@ -195,7 +195,7 @@ if not help_arg and not restore_arg:
         if calculated_crc == 1142252342:
             print(" FYI: this is not the latest version of the game")
             print(" Not that it matters, this patch will work as is.")
-            print(" But if you wish, look for Patch 3 of the game,")
+            print(" But if you wish, look for Update 3 of the game,")
             print(" and patch again after updating.")
 
         # Create a backup of the original file
