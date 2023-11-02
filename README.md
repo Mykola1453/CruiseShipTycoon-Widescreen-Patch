@@ -30,7 +30,7 @@ Also, look for table of examples for screenshots of the patched games in the 3 m
 
 ## Acknowledgments
 
-As many of the tycoon games, this project started with Roller Coaster Tycoon (1999) and [jeFF0Falltrades](https://github.com/jeFF0Falltrades)'s [tutorial](https://youtu.be/cwBoUuy4nGc) on how to patch the game to support widescreen resolutions. You can also find his Python patch for the game [here](https://github.com/jeFF0Falltrades/Tutorials/tree/master/rct_full_res).
+As many of the tycoon games, this project started with Roller Coaster Tycoon (1999). Specifically, with [jeFF0Falltrades](https://github.com/jeFF0Falltrades)'s [tutorial](https://youtu.be/cwBoUuy4nGc) on how to patch the game to support widescreen resolutions. You can also find his Python patch for the game [here](https://github.com/jeFF0Falltrades/Tutorials/tree/master/rct_full_res).
 
 After watching the tutorial, I also remembered I played Cruise Ship Tycoon and similar tycoon games a while ago, hence my patches. At the same time, I didn't use the linked patch above in the writing of my patches. My mistakes are mine and mine alone. Well, mine and [ChatGPT](https://openai.com/blog/chatgpt)'s sometimes.
 
