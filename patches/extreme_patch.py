@@ -231,7 +231,7 @@ if not help_arg and not restore_arg:
             print("CD protection was removed")
             print("Re-run this patch to change resolution of the game")
     else:
-        print(f"Wrong file! Didn't recognize CRC: {calculated_crc}")
+        print(f"Wrong file! Didn't recognize CRC: {calculated_crc}. Maybe this is not the latest version or the patch was already applied.")
         # restore_backup()
 elif restore_arg:
     restore_backup()
