@@ -1,30 +1,37 @@
-# CruiseShipTycoon-Widescreen-Patch
+# Tycoon-Widescreen-Patches
 
-This patch is for Cruise Ship Tycoon (2003). It replaces the default 1280x960 (4:3) resolution with a widescreen one.
+Collection of widescreen patches I have made for selected tycoon games. 
 
-To run it, open terminal in the game's folder and execute command `python .\cruise_patch.py`. By default, it will try to detect the resolution of your screen and match to that, but, if on **Linux**, you'll need to install following pip package: `pip install pyautogui` (or you can define your resolution, using the arguments as explained below).
+Each patch is located in `patches` directory of the repository, it replaces the default letterbox resolution (like 1280x960) with a widescreen one.
 
-Note that the game tends to set the lowest graphical settings possible, so you might want to change your game settings. Don't forget to choose "1280x960" resolution from the game options. Also note that menu resolution and in-game resolution can be different, so the menu one is set in 4:3 ratio to avoid parts of it being cropped.
+To run a patch, download the patch you need and put it in game's folder, open terminal and execute command, for instance, `python .\cruise_patch.py` (replace with whatever patch you want to run). 
 
-The patch accepts the following arguments:
+By default, it will try to detect the resolution of your screen and match to that, but, if on **Linux**, you'll need to install following pip package: `pip install pyautogui`.
 
-    "path/to/the/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
-    (width)x(height) sets custom resolution
-    --wide_menu (-w) sets menu resolution to be widescreen too, but the menu can get partially cropped
-    --letterbox (-l) sets that 4:3 resolution which is the closest to the defined widescreen resolution
-    --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
-    --help (-h) prints help message
+Alternatively, you can try and define custom resolution and also path to game's exe like that: `python .\cruise_patch.py "path/to/the/game.exe" 1280x800`. Run `python .\cruise_patch.py -h` to see all possible arguments. To undo the patch, run `python .\cruise_patch.py -r` to restore original exe from the backup made during patch execution. 
 
-## Some examples
+Each game can have its own specifics or issues, which you can check in the table of patches below. I try to eliminate all except the minor issues, so nothing game breaking. At the same time, I tested resolutions selected resolutions, and everything seems to work, but I didn't test the games extensively. I also didn't test them under Wine (should work) or in multi-monitor configuration (you're welcome to try).
 
-1280x800:
-![Cruise Ship Tycoon, 1280x800](images/cst_1280x800.jpg)
+Also, look for table of examples for screenshots of the patched games in the 3 most common resolutions: 1280x800 (SteamDeck resolution), 1920x1080, 3840x2160 (4K).
 
-1920x1080:
-![Cruise Ship Tycoon, 1920x1080](images/cst_1920x1080.jpg)
+## Table of patches
 
-2560x1440:
-![Cruise Ship Tycoon, 2560x1440](images/cst_2560x1440.jpg)
+| Patch                                      | Resolution replaced | Game                      | Developer / <br/>Publisher                  | Store page  | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+|:-------------------------------------------|:-------------------:|:--------------------------|:--------------------------------------------|:------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [cruise_patch.py](patches/cruise_patch.py) |      1280x960       | Cruise Ship Tycoon (2003) | Cat Daddy Games / <br/>Activision Value     | Abandonware | <p style='text-align: justify;'>1) Don't forget to change game options after running the patch.<br/>2) In-game resolution and main menu resolution can be different, so the patch chooses by default a letterbox resolution for the menu to avoid parts of the menu being cropped.<br/><details><summary>Noticed issues:</summary>• When player opens a map window, there is a black background around it. Unlike in native resolutions, it may not cover all the screen.<br/>• 4K is unstable, possibly due to the engine limitations. Might get a few tries before the game launches in 4K.</details></p>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| [school_patch.py](patches/school_patch.py) |      1280x960       | School Tycoon (2004)      | Cat Daddy Games / <br/>Global Star Software | Abandonware | <p style='text-align: justify;'>1) Don't forget to change game options after running the patch.<br/>2) In-game resolution and main menu resolution are different. Menu resolution stays at 800x600 (4:3), because other resolutions don't work well with the menu. This doesn't influence in-game resolution.<br/>3) If the game doesn't run on Windows, try Windows XP compatibility mode.<br/><details><summary>Noticed issues:</summary>• In a classroom view, there is a frame with a camera icon at the bottom left corner. The frame is removed in patched resolution, because it is fixed and can't be stretched to the whole screen. The camera icon is still there, but is hidden unless the mouse hovers around it.<br/>• Save game window is also fixed in its position, so either it is a bit cropped or it doesn't cover all the screen. This doesn't influence the function of the window, all the buttons still work.<br/>• When history window is opened with a history button press or H key, the button, if it is found to the left from window, is not highlighted when pressed again to close the window. This doesn't influence the function of the button, it still works.</details></p> |
 
-3840x2160 ([not very stable](images/cst_3840x2160_crash.jpg)):
-![Cruise Ship Tycoon, 3840x2160](images/cst_3840x2160.jpg)
+## Table of examples
+
+|                           |                              1280x800                              |                              1920x1080                               |                              3840x2160                               |
+|:--------------------------|:------------------------------------------------------------------:|:--------------------------------------------------------------------:|:--------------------------------------------------------------------:|
+| Cruise Ship Tycoon (2003) | ![Cruise Ship Tycoon, 1280x800](images/cruise/cruise_1280x800.jpg) | ![Cruise Ship Tycoon, 1920x1080](images/cruise/cruise_1920x1080.jpg) | ![Cruise Ship Tycoon, 3840x2160](images/cruise/cruise_3840x2160.jpg) |
+| School Tycoon (2003)      |   ![School Tycoon, 1280x800](images/school/school_1280x800.jpg)    |   ![School Tycoon, 1920x1080](images/school/school_1920x1080.jpg)    |   ![School Tycoon, 3840x2160](images/school/school_3840x2160.jpg)    |
+
+## Acknowledgments
+
+As many of the tycoon games, this project started with Roller Coaster Tycoon (1999) and [jeFF0Falltrades](https://github.com/jeFF0Falltrades)'s [tutorial](https://youtu.be/cwBoUuy4nGc) on how to patch the game to support widescreen resolutions. You can also find his Python patch for the game [here](https://github.com/jeFF0Falltrades/Tutorials/tree/master/rct_full_res).
+
+After watching the tutorial, I also remembered I played Cruise Ship Tycoon and similar tycoon games a while ago, hence my patch(es). At the same time, I didn't use the linked patch above in writing my patch(es). My mistakes are mine and mine alone. Well, mine and [ChatGPT](https://openai.com/blog/chatgpt)'s sometimes.
+
+The tools I used: [Ghidra](https://github.com/NationalSecurityAgency/ghidra), [x64dbg](https://x64dbg.com/), [HxD](https://mh-nexus.de/en/hxd/) hex editor, and a method of [trial and error](https://en.wikipedia.org/wiki/Trial_and_error).
