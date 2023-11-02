@@ -2,7 +2,7 @@
 
 Collection of widescreen patches I have made for selected tycoon games. 
 
-Each patch is located in `patches` directory of the repository, it replaces the default letterbox resolution (like 1280x960) with a widescreen one.
+Each patch is located in [patches](patches/) directory of the repository, it replaces the default letterbox resolution (like 1280x960) with a widescreen one.
 
 To run a patch, download the patch you need and put it in game's folder, open terminal and execute command, for instance, `python .\cruise_patch.py` (replace with whatever patch you want to run). 
 
