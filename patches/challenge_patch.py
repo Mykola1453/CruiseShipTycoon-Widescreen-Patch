@@ -211,8 +211,8 @@ if not help_arg and not restore_arg:
     elif calculated_crc == 695746026:
         print('This is the latest version of the game.')
         print('It requires CD to play the game')
-        print('Disk check can be removed')
-        response = input("Write yes to remove it (yes/no): ").strip().lower()
+        print('Disk check will be removed')
+        response = input("Write yes to proceed (yes/no): ").strip().lower()
         if response == "yes":
             print("Removing disk check")
             shutil.copy(game_path, f"{game_path}.orig")
