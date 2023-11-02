@@ -129,8 +129,8 @@ def get_res_le(res=False):
 
 
 def restore_backup():
-    if os.path.isfile(f"{extreme_path}.bak"):
-        directory = os.path.dirname(extreme_path)
+    if os.path.isfile(f"{game_path}.bak"):
+        directory = os.path.dirname(game_path)
         if directory:
             settings_path = f"{directory}/settings.dat"
         else:
@@ -141,20 +141,20 @@ def restore_backup():
             os.remove(settings_path)
 
         print(f"Restoring backup")
-        shutil.copy(f"{extreme_path}.bak", extreme_path)
+        shutil.copy(f"{game_path}.bak", game_path)
     else:
         print(f"No backup is found")
 
 
 # Command line arguments
 arguments = sys.argv
-extreme_path = False
+game_path = False
 res_arg = False
 restore_arg = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
-        extreme_path = arg
+        game_path = arg
     elif re.match(r'\d+x\d+', arg):
         res_arg = arg
     elif arg == "--restore" or arg == "-r":
@@ -162,15 +162,15 @@ for arg in arguments:
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
-if not extreme_path:
-    extreme_path = 'SRE.exe'
+if not game_path:
+    game_path = 'SRE.exe'
 
-if not os.path.isfile(extreme_path):
+if not os.path.isfile(game_path):
     print("File is not found!")
 
 if not help_arg and not restore_arg:
     # Checking CRC of exe file
-    calculated_crc = calculate_crc(extreme_path)
+    calculated_crc = calculate_crc(game_path)
 
     tested_versions = [
         3371513462   # the latest version, without DRM / noCD
@@ -179,11 +179,11 @@ if not help_arg and not restore_arg:
     if calculated_crc in tested_versions:
         # Create a backup of the original file
         print(f"Making a backup")
-        shutil.copy(extreme_path, f"{extreme_path}.bak")
+        shutil.copy(game_path, f"{game_path}.bak")
 
         print("Patching the game")
-        with open(extreme_path, 'rb') as extreme:
-            extreme_content = extreme.read()
+        with open(game_path, 'rb') as game:
+            game_content = game.read()
 
         # Getting the resolution and converting the resolution to hexadecimal (little endian)
         width, height = get_res_le(res_arg)
@@ -195,40 +195,40 @@ if not help_arg and not restore_arg:
         # It's rendered in 800x600 by default and doesn't scale well to other resolutions
 
         # In-game resolution
-        extreme_content = replace_bytes(extreme_content, "c7402c00050000",
+        game_content = replace_bytes(game_content, "c7402c00050000",
                                    f"c7402c{width_le}")
-        extreme_content = replace_bytes(extreme_content, "c74030c0030000",
+        game_content = replace_bytes(game_content, "c74030c0030000",
                                    f"c74030{height_le}")
 
         # HUD fixes
-        # No need
+        game_content = replace_bytes(game_content, "740B3D00050000",
+                                     f"740B3D{width_le}")
 
         # Save the modified content to a new file
-        with open(extreme_path, 'wb') as extreme:
-            extreme.write(extreme_content)
+        with open(game_path, 'wb') as game:
+            game.write(game_content)
 
         print("File has been patched successfully")
         print("Don't forget to set game resolution to 1280x960 in options!")
     elif calculated_crc == 2176966923:
         print('This is an old version that requires CD to play the game!')
-        print('The latest update is Update 4.')
         print('You can update your game by pressing "Check for updates" button from the game\'s launcher (SREUpdater.exe).')
         print('Then run the patch again to change resolution of the game.')
     elif calculated_crc == 3801619499:
         print('This is the latest version of the game.')
         print('It requires CD to play the game')
-        print('CD protection can be removed')
+        print('Disk check can be removed')
         response = input("Write yes to remove it (yes/no): ").strip().lower()
         if response == "yes":
-            print("Removing CD protection")
-            shutil.copy(extreme_path, f"{extreme_path}.orig")
-            print(f"Original executable is saved to \"{extreme_path}.orig\"")
-            with open(extreme_path, 'rb') as extreme:
-                extreme_content = extreme.read()
-            extreme_content = replace_bytes(extreme_content, "752D84C08BCF7427A014E06900908D64240084C074198A1980CB200C203AD8750E8A440E014184C0746E", "909084C08BCF9090A014E06900908D64240084C090908A1980CB200C203AD890908A440E014184C0EB6E")
-            with open(extreme_path, 'wb') as extreme:
-                extreme.write(extreme_content)
-            print("CD protection was removed")
+            print("Removing disk check")
+            shutil.copy(game_path, f"{game_path}.orig")
+            print(f"Original executable is saved to \"{game_path}.orig\"")
+            with open(game_path, 'rb') as game:
+                game_content = game.read()
+            game_content = replace_bytes(game_content, "752D84C08BCF7427A014E06900908D64240084C074198A1980CB200C203AD8750E8A440E014184C0746E", "909084C08BCF9090A014E06900908D64240084C090908A1980CB200C203AD890908A440E014184C0EB6E")
+            with open(game_path, 'wb') as game:
+                game.write(game_content)
+            print("Disk check was removed")
             print("Re-run this patch to change resolution of the game")
     else:
         print(f"Wrong file! Didn't recognize CRC: {calculated_crc}. Maybe this is not the latest version or the patch was already applied.")

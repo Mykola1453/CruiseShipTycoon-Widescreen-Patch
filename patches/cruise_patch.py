@@ -136,8 +136,8 @@ def get_res_le(res=False, letterbox=False, menu=False):
 
 
 def restore_backup():
-    if os.path.isfile(f"{cruise_path}.bak"):
-        directory = os.path.dirname(cruise_path)
+    if os.path.isfile(f"{game_path}.bak"):
+        directory = os.path.dirname(game_path)
         if directory:
             settings_path = f"{directory}/settings.dat"
         else:
@@ -148,14 +148,14 @@ def restore_backup():
             os.remove(settings_path)
 
         print(f"Restoring backup")
-        shutil.copy(f"{cruise_path}.bak", cruise_path)
+        shutil.copy(f"{game_path}.bak", game_path)
     else:
         print(f"No backup is found")
 
 
 # Command line arguments
 arguments = sys.argv
-cruise_path = False
+game_path = False
 res_arg = False
 restore_arg = False
 wide_menu_arg = False
@@ -163,7 +163,7 @@ letterbox_arg = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
-        cruise_path = arg
+        game_path = arg
     elif re.match(r'\d+x\d+', arg):
         res_arg = arg
     elif arg == "--restore" or arg == "-r":
@@ -175,15 +175,15 @@ for arg in arguments:
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
-if not cruise_path:
-    cruise_path = 'CruiseShipTycoon.exe'
+if not game_path:
+    game_path = 'CruiseShipTycoon.exe'
 
-if not os.path.isfile(cruise_path):
+if not os.path.isfile(game_path):
     print("File is not found!")
 
 if not help_arg and not restore_arg:
     # Checking CRC of exe file
-    calculated_crc = calculate_crc(cruise_path)
+    calculated_crc = calculate_crc(game_path)
 
     tested_versions = [
         1142252342, # old version
@@ -200,13 +200,13 @@ if not help_arg and not restore_arg:
 
         # Create a backup of the original file
         print(f"Making a backup")
-        shutil.copy(cruise_path, f"{cruise_path}.bak")
+        shutil.copy(game_path, f"{game_path}.bak")
 
         print("Patching the game")
         # Open the file for reading in binary mode
-        with open(cruise_path, 'rb') as cruise:
+        with open(game_path, 'rb') as game:
             # Read the contents of the file
-            cruise_content = cruise.read()
+            game_content = game.read()
         
         # Getting the resolution and converting the resolution to hexadecimal (little endian)
         width, height = get_res_le(res_arg, letterbox_arg)
@@ -223,21 +223,24 @@ if not help_arg and not restore_arg:
 
         # Main Menu resolution
         if calculated_crc == tested_versions[0]:
-            cruise_content = replace_bytes(cruise_content, "20030000C744243858020000",
+            game_content = replace_bytes(game_content, "20030000C744243858020000",
                                         f"{menu_width_le}C7442438{menu_height_le}")
         elif calculated_crc == tested_versions[1]:
-            cruise_content = replace_bytes(cruise_content, "20030000C744243458020000",
+            game_content = replace_bytes(game_content, "20030000C744243458020000",
                                         f"{menu_width_le}C7442434{menu_height_le}")
 
         # In-game resolution
         if calculated_crc == tested_versions[0]:
-            cruise_content = replace_bytes(cruise_content, "00050000E8DCF80100C74030C0030000",
+            game_content = replace_bytes(game_content, "00050000E8DCF80100C74030C0030000",
                                         f"{width_le}E8DCF80100C74030{height_le}")
         elif calculated_crc == tested_versions[1]:
-            cruise_content = replace_bytes(cruise_content, "00050000E80AE50100C74030C0030000",
+            game_content = replace_bytes(game_content, "00050000E80AE50100C74030C0030000",
                                         f"{width_le}E80AE50100C74030{height_le}")
 
-        # HUD fix
+        # HUD fixes
+        game_content = replace_bytes(game_content, "3d000500007505",
+                                     f"3d{width_le}7505")
+
         # Hex value below, 68 01, corresponds to 360 and is tied to height of 960.
         # Namely, it's height - 600
         # We need to correct it for the HUD to be placed right
@@ -247,12 +250,12 @@ if not help_arg and not restore_arg:
         # Convert fix value to little-endian hexadecimal value
         fix_h_le = struct.pack('<I', fix_height).hex()
 
-        cruise_content = replace_bytes(cruise_content, "BD68010000C7", f"BD{fix_h_le}C7")
-        cruise_content = replace_bytes(cruise_content, "000500007509BD68010000", f"{width_le}7509BD{fix_h_le}")
+        game_content = replace_bytes(game_content, "BD68010000C7", f"BD{fix_h_le}C7")
+        game_content = replace_bytes(game_content, "000500007509BD68010000", f"{width_le}7509BD{fix_h_le}")
 
         # Save the modified content to a new file
-        with open(cruise_path, 'wb') as cruise:
-            cruise.write(cruise_content)
+        with open(game_path, 'wb') as game:
+            game.write(game_content)
 
         print("File has been patched successfully")
         print("Don't forget to set game resolution to 1280x960 in options!")

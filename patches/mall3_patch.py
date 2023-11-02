@@ -129,8 +129,8 @@ def get_res_le(res=False):
 
 
 def restore_backup():
-    if os.path.isfile(f"{mall3_path}.bak"):
-        directory = os.path.dirname(mall3_path)
+    if os.path.isfile(f"{game_path}.bak"):
+        directory = os.path.dirname(game_path)
         if directory:
             settings_path = f"{directory}/settings.dat"
         else:
@@ -141,20 +141,20 @@ def restore_backup():
             os.remove(settings_path)
 
         print(f"Restoring backup")
-        shutil.copy(f"{mall3_path}.bak", mall3_path)
+        shutil.copy(f"{game_path}.bak", game_path)
     else:
         print(f"No backup is found")
 
 
 # Command line arguments
 arguments = sys.argv
-mall3_path = False
+game_path = False
 res_arg = False
 restore_arg = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
-        mall3_path = arg
+        game_path = arg
     elif re.match(r'\d+x\d+', arg):
         res_arg = arg
     elif arg == "--restore" or arg == "-r":
@@ -162,15 +162,15 @@ for arg in arguments:
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
-if not mall3_path:
-    mall3_path = 'Mall3Game.exe'
+if not game_path:
+    game_path = 'Mall3Game.exe'
 
-if not os.path.isfile(mall3_path):
+if not os.path.isfile(game_path):
     print("File is not found!")
 
 if not help_arg and not restore_arg:
     # Checking CRC of exe file
-    calculated_crc = calculate_crc(mall3_path)
+    calculated_crc = calculate_crc(game_path)
 
     tested_versions = [
         495043694 # the latest version, without DRM
@@ -179,11 +179,11 @@ if not help_arg and not restore_arg:
     if calculated_crc in tested_versions:
         # Create a backup of the original file
         print(f"Making a backup")
-        shutil.copy(mall3_path, f"{mall3_path}.bak")
+        shutil.copy(game_path, f"{game_path}.bak")
 
         print("Patching the game")
-        with open(mall3_path, 'rb') as mall3:
-            mall3_content = mall3.read()
+        with open(game_path, 'rb') as game:
+            game_content = game.read()
 
         # Getting the resolution and converting the resolution to hexadecimal (little endian)
         width, height = get_res_le(res_arg)
@@ -192,33 +192,34 @@ if not help_arg and not restore_arg:
         height_le = struct.pack('<I', height).hex()
 
         # Resolution
-        mall3_content = replace_bytes(mall3_content, "c7402800050000", f"c74028{width_le}")
-        mall3_content = replace_bytes(mall3_content, "c7402cc0030000", f"c7402c{height_le}")
+        game_content = replace_bytes(game_content, "c7402800050000", f"c74028{width_le}")
+        game_content = replace_bytes(game_content, "c7402cc0030000", f"c7402c{height_le}")
 
         # HUD fixes
-        mall3_content = replace_bytes(mall3_content, "3d00050000", f"3d{width_le}")
+        game_content = replace_bytes(game_content, "740e3d00050000", f"740e3d{width_le}")
+        game_content = replace_bytes(game_content, "0f84e70000003d00050000", f"0f84e70000003d{width_le}")
 
         # Save the modified content to a new file
-        with open(mall3_path, 'wb') as mall3:
-            mall3.write(mall3_content)
+        with open(game_path, 'wb') as game:
+            game.write(game_content)
 
         print("File has been patched successfully")
         print("Don't forget to set game resolution to 1280x960 in options!")
     elif calculated_crc == 1814945630:
         print('This is the latest version of the game.')
         print('It requires CD to play the game')
-        print('CD protection can be removed')
+        print('Disk check can be removed')
         response = input("Write yes to remove it (yes/no): ").strip().lower()
         if response == "yes":
-            print("Removing CD protection")
-            shutil.copy(mall3_path, f"{mall3_path}.orig")
-            print(f"Original executable is saved to \"{mall3_path}.orig\"")
-            with open(mall3_path, 'rb') as mall3:
-                mall3_content = mall3.read()
-            mall3_content = replace_bytes(mall3_content, "8B35B0F26B00EB09", "8B35B0F26B00EB2B")
-            with open(mall3_path, 'wb') as mall3:
-                mall3.write(mall3_content)
-            print("CD protection was removed")
+            print("Removing disk check")
+            shutil.copy(game_path, f"{game_path}.orig")
+            print(f"Original executable is saved to \"{game_path}.orig\"")
+            with open(game_path, 'rb') as game:
+                game_content = game.read()
+            game_content = replace_bytes(game_content, "8B35B0F26B00EB09", "8B35B0F26B00EB2B")
+            with open(game_path, 'wb') as game:
+                game.write(game_content)
+            print("Disk check was removed")
             print("Re-run this patch to change resolution of the game")
     else:
         print(f"Wrong file! Didn't recognize CRC: {calculated_crc}. Maybe this is not the latest version or the patch was already applied.")

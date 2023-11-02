@@ -1,8 +1,8 @@
-# school_patch.py
+# challenge_patch.py
 #
 # Author: Mykola1453
 #
-# Patches SchoolTycoon.exe to support widescreen resolutions,
+# Patches Mall3Game.exe to support widescreen resolutions,
 # replacing the default '1280x960' resolution.
 #
 # MIT License
@@ -86,8 +86,8 @@ def get_res_le(res=False):
         "1366x768": (1366, 768),
         "1600x900": (1600, 900),
         "1920x1080": (1920, 1080),
-        "2560x1440": (2560, 1440),
-        "3840x2160": (3840, 2160)
+        # "2560x1440": (2560, 1440),
+        # "3840x2160": (3840, 2160)
     }
 
     if res:
@@ -163,7 +163,7 @@ for arg in arguments:
         help_arg = True
 
 if not game_path:
-    game_path = 'SchoolTycoon.exe'
+    game_path = 'Mall3Game.exe'
 
 if not os.path.isfile(game_path):
     print("File is not found!")
@@ -173,7 +173,7 @@ if not help_arg and not restore_arg:
     calculated_crc = calculate_crc(game_path)
 
     tested_versions = [
-        490347772  # latest version, no DRM
+        554985168
     ]
 
     if calculated_crc in tested_versions:
@@ -195,103 +195,12 @@ if not help_arg and not restore_arg:
         # It's rendered in 800x600 by default and doesn't scale well to other resolutions
 
         # In-game resolution
-        game_content = replace_bytes(game_content, "402C00050000",
-                                   f"402C{width_le}")
-        game_content = replace_bytes(game_content, "4030C0030000",
-                                   f"4030{height_le}")
+        game_content = replace_bytes(game_content, "c7402c00050000", f"c7402c{width_le}")
+        game_content = replace_bytes(game_content, "c74030c0030000", f"c74030{height_le}")
 
         # HUD fixes
-        print("Fixing HUD")
-        if width != 1280:
-            # Fixing position of the buttons in the lower side of the screen
-            # by replacing E0FCFFFF (-800) with negative value of the current width
-            negative_width = -width
-            negative_width_le = struct.pack('<i', negative_width).hex()
-            game_content = replace_bytes(game_content, "8D81E0FCFFFF",
-                                       f"8D81{negative_width_le}")
-
-            # Prevents game crashes
-            game_content = replace_bytes(game_content, "741A3D00050000",
-                                       f"741A3D{width_le}")
-            game_content = replace_bytes(game_content, "eb093d00050000",
-                                       f"eb093d{width_le}")
-            game_content = replace_bytes(game_content, "740B3D00050000",
-                                       f"740B3D{width_le}")
-            game_content = replace_bytes(game_content, "e8896502003d00050000",
-                                       f"e8896502003d{width_le}")
-            game_content = replace_bytes(game_content, "74243d00050000",
-                                       f"74243d{width_le}")
-            game_content = replace_bytes(game_content, "e8dece00003d00050000",
-                                       f"e8dece00003d{width_le}")
-            game_content = replace_bytes(game_content, "e893cb00003d00050000",
-                                       f"e893cb00003d{width_le}")
-            game_content = replace_bytes(game_content, "e851c900003d00050000",
-                                       f"e851c900003d{width_le}")
-
-        # Fixing position of objectives button and history button
-        # The position is relative to the respective window that's opened after button is pressed,
-        # so we calculate needed value based on that
-        if width == 1280:
-            # Buttons are centered, so their position is a bit different
-            objective_x = 712 - ((width / 2) - 148)
-            history_x = 770 - ((width / 2) - 175)
-        else:
-            objective_x = 472 - ((width / 2) - 148)
-            history_x = 530 - ((width / 2) - 175)
-
-        history_y = (height - 33) - ((height / 2) - 212)
-        objective_y = (height - 33) - ((height / 2) - 113)
-        objective_y_instant = objective_y - 25
-
-        if objective_x < 0:
-            o_x_le = struct.pack('<i', int(objective_x)).hex()
-        else:
-            o_x_le = struct.pack('<I', int(objective_x)).hex()
-        o_y_le = struct.pack('<I', int(objective_y)).hex()
-        o_y_i_le = struct.pack('<I', int(objective_y_instant)).hex()
-
-        if history_x < 0:
-            h_x_le = struct.pack('<i', int(history_x)).hex()
-        else:
-            h_x_le = struct.pack('<I', int(history_x)).hex()
-        h_y_le = struct.pack('<I', int(history_y)).hex()
-
-        game_content = replace_bytes(game_content, "740B81C730020000",
-                                   f"740B81C7{o_y_le}")
-        game_content = replace_bytes(game_content, "81c717020000",
-                                   f"81c7{o_y_i_le}")
-        game_content = replace_bytes(game_content, "526A4F81C6DC000000",
-                                   f"526A4F81C6{o_x_le}")
-
-        game_content = replace_bytes(game_content, "68930200006831010000",
-                                   f"68{h_y_le}68{h_x_le}")
-
-        # Save game window
-        if width == 1280 and height == 720:
-            game_content = replace_bytes(game_content, "81FB00040000",
-                                       f"81FB{width_le}")
-            game_content = replace_bytes(game_content, "81FB00050000",
-                                       f"81FB00000000")
-
-            save_x = (width / 2)
-            save_y = (height / 2)
-        else:
-            game_content = replace_bytes(game_content, "81FB00050000",
-                                       f"81FB{width_le}")
-
-            save_x = (width / 2) - 240
-            save_y = (height / 2) - 180
-
-        save_x_le = struct.pack('<I', int(save_x)).hex()
-        save_y_le = struct.pack('<I', int(save_y)).hex()
-
-        game_content = replace_bytes(game_content, "2D90010000",
-                                   f"2D{save_x_le}")
-        game_content = replace_bytes(game_content, "2D2C010000",
-                                   f"2D{save_y_le}")
-
-        # Removes displaced frame in a classroom view
-        game_content = replace_bytes(game_content, "313238307839363000", f"000000000000000000")
+        game_content = replace_bytes(game_content, "740b3d00050000", f"740b3d{width_le}")
+        game_content = replace_bytes(game_content, "741a3d00050000", f"741a3d{width_le}")
 
         # Save the modified content to a new file
         with open(game_path, 'wb') as game:
@@ -299,10 +208,22 @@ if not help_arg and not restore_arg:
 
         print("File has been patched successfully")
         print("Don't forget to set game resolution to 1280x960 in options!")
-    elif calculated_crc == 4056039368:
-        print('This is an old version that requires CD to play the game!')
-        print('You can update your game by pressing "Check for updates" button from the game\'s launcher (School.exe).')
-        print('Then run the patch again to change resolution of the game.')
+    elif calculated_crc == 695746026:
+        print('This is the latest version of the game.')
+        print('It requires CD to play the game')
+        print('Disk check can be removed')
+        response = input("Write yes to remove it (yes/no): ").strip().lower()
+        if response == "yes":
+            print("Removing disk check")
+            shutil.copy(game_path, f"{game_path}.orig")
+            print(f"Original executable is saved to \"{game_path}.orig\"")
+            with open(game_path, 'rb') as game:
+                game_content = game.read()
+            game_content = replace_bytes(game_content, "E8D8FDFFFF85C07547", "E8D8FDFFFF85C0EB47")
+            with open(game_path, 'wb') as game:
+                game.write(game_content)
+            print("Disk check was removed")
+            print("Re-run this patch to change resolution of the game")
     else:
         print(f"Wrong file! Didn't recognize CRC: {calculated_crc}. Maybe this is not the latest version or the patch was already applied.")
         # restore_backup()
@@ -312,7 +233,6 @@ else:
     help_msg = """
     This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's HUD to accommodate the new resolution.
     Run it in the root of the game to set the resolution to your screen's resolution.
-    Menu resolution stays at 800x600 (4:3), because other resolutions don't work well with the menu. This doesn't influence in-game resolution.
     (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below)\n
     Patch accepts the following arguments:
     "path/to/the/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
