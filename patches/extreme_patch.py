@@ -1,8 +1,8 @@
-# school_patch.py
+# extreme_patch.py
 #
 # Author: Mykola1453
 #
-# Patches SchoolTycoon.exe to support widescreen resolutions,
+# Patches SRE.exe to support widescreen resolutions,
 # replacing the default '1280x960' resolution.
 #
 # MIT License
@@ -86,8 +86,8 @@ def get_res_le(res=False):
         "1366x768": (1366, 768),
         "1600x900": (1600, 900),
         "1920x1080": (1920, 1080),
-        "2560x1440": (2560, 1440),
-        "3840x2160": (3840, 2160)
+        # "2560x1440": (2560, 1440),
+        # "3840x2160": (3840, 2160)
     }
 
     if res:
@@ -129,8 +129,8 @@ def get_res_le(res=False):
 
 
 def restore_backup():
-    if os.path.isfile(f"{school_path}.bak"):
-        directory = os.path.dirname(school_path)
+    if os.path.isfile(f"{extreme_path}.bak"):
+        directory = os.path.dirname(extreme_path)
         if directory:
             settings_path = f"{directory}/settings.dat"
         else:
@@ -141,20 +141,20 @@ def restore_backup():
             os.remove(settings_path)
 
         print(f"Restoring backup")
-        shutil.copy(f"{school_path}.bak", school_path)
+        shutil.copy(f"{extreme_path}.bak", extreme_path)
     else:
         print(f"No backup is found")
 
 
 # Command line arguments
 arguments = sys.argv
-school_path = False
+extreme_path = False
 res_arg = False
 restore_arg = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
-        school_path = arg
+        extreme_path = arg
     elif re.match(r'\d+x\d+', arg):
         res_arg = arg
     elif arg == "--restore" or arg == "-r":
@@ -162,29 +162,28 @@ for arg in arguments:
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
-if not school_path:
-    school_path = 'SchoolTycoon.exe'
+if not extreme_path:
+    extreme_path = 'SRE.exe'
 
-if not os.path.isfile(school_path):
+if not os.path.isfile(extreme_path):
     print("File is not found!")
 
 if not help_arg and not restore_arg:
     # Checking CRC of exe file
-    calculated_crc = calculate_crc(school_path)
+    calculated_crc = calculate_crc(extreme_path)
 
     tested_versions = [
-        1373379655,  # old version, without DRM
-        490347772  # latest version, no DRM
+        3371513462   # the latest version, without DRM / noCD
     ]
 
     if calculated_crc in tested_versions:
         # Create a backup of the original file
         print(f"Making a backup")
-        shutil.copy(school_path, f"{school_path}.bak")
+        shutil.copy(extreme_path, f"{extreme_path}.bak")
 
         print("Patching the game")
-        with open(school_path, 'rb') as school:
-            school_content = school.read()
+        with open(extreme_path, 'rb') as extreme:
+            extreme_content = extreme.read()
 
         # Getting the resolution and converting the resolution to hexadecimal (little endian)
         width, height = get_res_le(res_arg)
@@ -194,115 +193,41 @@ if not help_arg and not restore_arg:
 
         # Main Menu resolution
         # It's rendered in 800x600 by default and doesn't scale well to other resolutions
-        # school_content = replace_bytes(school_content, "C744243420030000",
-        #                            f"C7442434{width_le}")
-        # school_content = replace_bytes(school_content, "C744243858020000",
-        #                            f"C7442438{height_le}")
 
         # In-game resolution
-        school_content = replace_bytes(school_content, "402C00050000",
-                                   f"402C{width_le}")
-        school_content = replace_bytes(school_content, "4030C0030000",
-                                   f"4030{height_le}")
+        extreme_content = replace_bytes(extreme_content, "c7402c00050000",
+                                   f"c7402c{width_le}")
+        extreme_content = replace_bytes(extreme_content, "c74030c0030000",
+                                   f"c74030{height_le}")
 
         # HUD fixes
-        print("Fixing HUD")
-        if width != 1280:
-            # Fixing position of the buttons in the lower side of the screen
-            # by replacing E0FCFFFF (-800) with negative value of the current width
-            negative_width = -width
-            negative_width_le = struct.pack('<i', negative_width).hex()
-            school_content = replace_bytes(school_content, "8D81E0FCFFFF",
-                                       f"8D81{negative_width_le}")
-
-            # Prevents game crashes
-            school_content = replace_bytes(school_content, "3D00050000",
-                                       f"3D{width_le}")
-
-        # Fixing position of objectives button and history button
-        # The position is relative to the respective window that's opened after button is pressed,
-        # so we calculate needed value based on that
-        if width == 1280:
-            # Buttons are centered, so their position is a bit different
-            objective_x = 712 - ((width / 2) - 148)
-            history_x = 770 - ((width / 2) - 175)
-        else:
-            objective_x = 472 - ((width / 2) - 148)
-            history_x = 530 - ((width / 2) - 175)
-
-        history_y = (height - 33) - ((height / 2) - 212)
-        objective_y = (height - 33) - ((height / 2) - 113)
-
-        if objective_x < 0:
-            o_x_le = struct.pack('<i', int(objective_x)).hex()
-        else:
-            o_x_le = struct.pack('<I', int(objective_x)).hex()
-        o_y_le = struct.pack('<I', int(objective_y)).hex()
-
-        if history_x < 0:
-            h_x_le = struct.pack('<i', int(history_x)).hex()
-        else:
-            h_x_le = struct.pack('<I', int(history_x)).hex()
-        h_y_le = struct.pack('<I', int(history_y)).hex()
-
-        school_content = replace_bytes(school_content, "740B81C730020000",
-                                   f"740B81C7{o_y_le}")
-        school_content = replace_bytes(school_content, "526A4F81C6DC000000",
-                                   f"526A4F81C6{o_x_le}")
-
-        school_content = replace_bytes(school_content, "68930200006831010000",
-                                   f"68{h_y_le}68{h_x_le}")
-
-        # Save game window
-        if width == 1280 and height == 720:
-            school_content = replace_bytes(school_content, "81FB00040000",
-                                       f"81FB{width_le}")
-            school_content = replace_bytes(school_content, "81FB00050000",
-                                       f"81FB00000000")
-
-            save_x = (width / 2)
-            save_y = (height / 2)
-        else:
-            school_content = replace_bytes(school_content, "81FB00050000",
-                                       f"81FB{width_le}")
-
-            save_x = (width / 2) - 240
-            save_y = (height / 2) - 180
-
-        save_x_le = struct.pack('<I', int(save_x)).hex()
-        save_y_le = struct.pack('<I', int(save_y)).hex()
-
-        school_content = replace_bytes(school_content, "2D90010000",
-                                   f"2D{save_x_le}")
-        school_content = replace_bytes(school_content, "2D2C010000",
-                                   f"2D{save_y_le}")
-
-        # Removes displaced frame in a classroom view
-        school_content = replace_bytes(school_content, "313238307839363000", f"000000000000000000")
+        # No need
 
         # Save the modified content to a new file
-        with open(school_path, 'wb') as school:
-            school.write(school_content)
+        with open(extreme_path, 'wb') as extreme:
+            extreme.write(extreme_content)
 
         print("File has been patched successfully")
         print("Don't forget to set game resolution to 1280x960 in options!")
-    elif calculated_crc == 4056039368:
-        print('This is an old version that requires CD to play the game')
-        print('You can update your game by pressing "Check for updates" button from the game\'s launcher (School.exe)')
-        print('If you still want to use this version, CD protection can be removed')
-        response = input("Write yes, if so (yes/no): ").strip().lower()
+    elif calculated_crc == 2176966923:
+        print('This is an old version that requires CD to play the game!')
+        print('The latest update is Update 4.')
+        print('You can update your game by pressing "Check for updates" button from the game\'s launcher (SREUpdater.exe).')
+        print('Then run the patch again to change resolution of the game.')
+    elif calculated_crc == 3801619499:
+        print('This is the latest version of the game.')
+        print('It requires CD to play the game')
+        print('CD protection can be removed')
+        response = input("Write yes to remove it (yes/no): ").strip().lower()
         if response == "yes":
             print("Removing CD protection")
-            shutil.copy(school_path, f"{school_path}.orig")
-            print(f"Original executable is saved to \"{school_path}.orig\"")
-            with open(school_path, 'rb') as school:
-                school_content = school.read()
-            school_content = replace_bytes(school_content, "E845BA000084C07549", "E845BA000084C0EB49")
-            school_content = replace_bytes_range(school_content, "89097", "8909C", "90")
-            school_content = replace_bytes_range(school_content, "890A9", "890AE", "90")
-            school_content = replace_bytes_range(school_content, "890B1", "890B6", "90")
-            with open(school_path, 'wb') as school:
-                school.write(school_content)
+            shutil.copy(extreme_path, f"{extreme_path}.orig")
+            print(f"Original executable is saved to \"{extreme_path}.orig\"")
+            with open(extreme_path, 'rb') as extreme:
+                extreme_content = extreme.read()
+            extreme_content = replace_bytes(extreme_content, "752D84C08BCF7427A014E06900908D64240084C074198A1980CB200C203AD8750E8A440E014184C0746E", "909084C08BCF9090A014E06900908D64240084C090908A1980CB200C203AD890908A440E014184C0EB6E")
+            with open(extreme_path, 'wb') as extreme:
+                extreme.write(extreme_content)
             print("CD protection was removed")
             print("Re-run this patch to change resolution of the game")
     else:
