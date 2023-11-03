@@ -120,11 +120,9 @@ def get_res_le(res=False, letterbox=False, menu=False):
         print(f"Changing menu resolution to {width}x{height}")
 
     if height == 2160:
-        print(" NOTE: While the game can be displayed in 4K resolution,")
-        print(" it will also crash a few times, probably due to engine limitation.")
-        print(" Can't really promise a stable gameplay, but worth a try.")
-        print(" If the game still doesn't launch in 4K after a few tries, or if 4K just doesn't work,")
-        print(" feel free to restore backup and patch again, setting resolution to 2560x1440 or lower.")
+        print(" NOTE: Patch executable with 4GB Patch,")
+        print(" https://ntcore.com/?page_id=371.")
+        print(" The game will be unstable without it.")
 
     # Check if the actual resolution matches any of the tested resolutions
     matching_resolution = False
