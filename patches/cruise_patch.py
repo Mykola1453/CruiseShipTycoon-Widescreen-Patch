@@ -94,15 +94,19 @@ def get_res_le(res=False, letterbox=False, menu=False):
         width = (4 * height) / 3
         width = round(width)
 
-        if (width == 960 and height == 720) or \
-                (width == 1067 and height == 800) or \
+        if (width == 1067 and height == 800) or \
                 (width == 1200 and height == 900):
             # These 4:3 resolutions make the game render in 640x480,
             # using 1024x768
             width = 1024
             height = 768
+        elif (width == 960 and height == 720):
+            # Same as above
+            # using 1920x1440
+            width = 800
+            height = 600
         elif (width == 2880 and height == 2160):
-            # The same as above
+            # Same as above
             # using 1920x1440
             width = 1920
             height = 1440
