@@ -242,7 +242,7 @@ if not help_arg and not restore_arg:
                                         f"{width_le}E80AE50100C74030{height_le}")
 
         if not laa_false:
-            if (width > 1920 or height > 1080) or laa_true:
+            if (width >= 2560 or height >= 1440) or laa_true:
                 # LAA fix (4GB patch), improves stability
                 print("LAA fix for better stability")
                 game_content = replace_bytes(game_content, "0F010B01",
@@ -286,7 +286,7 @@ else:
     (width)x(height) sets custom resolution
     --wide_menu (-w) sets menu resolution to be widescreen too, but the menu can get partially cropped
     --letterbox (-l) sets that 4:3 resolution which is the closest to the defined widescreen resolution
-    --lla=true enables LLA fix (4GB patch) that improves stability by allocating 4GB of RAM instead of 2GB; enabled by default if resolution is bigger than 1920x1080
+    --lla=true enables LLA fix (4GB patch) that improves stability by allocating 4GB of RAM instead of 2GB; enabled by default if resolution >= 2560x1440
     --lla=false disables LLA fix even if resolution is bigger than 1920x1080
     --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
     --help (-h) prints help message
