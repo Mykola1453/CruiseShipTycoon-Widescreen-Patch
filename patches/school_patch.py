@@ -207,7 +207,7 @@ if not help_arg and not restore_arg:
                                    f"4030{height_le}")
 
         if not laa_false:
-            if (width > 1920 and height > 1080) or laa_true:
+            if (width > 1920 or height > 1080) or laa_true:
                 # LAA fix (4GB patch), improves stability
                 print("LAA fix for better stability")
                 game_content = replace_bytes(game_content, "0F010B01",
