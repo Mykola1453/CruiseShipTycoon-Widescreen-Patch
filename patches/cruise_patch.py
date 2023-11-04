@@ -53,6 +53,7 @@ def replace_bytes(content, search, replace):
 
 def get_res_le(res=False, letterbox=False, menu=False):
     tested_resolutions = {
+        "800x600": (800, 600),
         "1024x768": (1024, 768),
         "1280x720": (1280, 720),
         "1280x800": (1280, 800),
@@ -119,11 +120,6 @@ def get_res_le(res=False, letterbox=False, menu=False):
     else:
         print(f"Changing menu resolution to {width}x{height}")
 
-    if height == 2160:
-        print(" NOTE: Patch executable with 4GB Patch,")
-        print(" https://ntcore.com/?page_id=371.")
-        print(" The game will be unstable without it.")
-
     # Check if the actual resolution matches any of the tested resolutions
     matching_resolution = False
     for resolution, (expected_width, expected_height) in tested_resolutions.items():
@@ -162,6 +158,8 @@ res_arg = False
 restore_arg = False
 wide_menu_arg = False
 letterbox_arg = False
+laa_true = False
+laa_false = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
@@ -174,6 +172,10 @@ for arg in arguments:
         wide_menu_arg = True
     elif arg == "--letterbox" or arg == "-l":
         letterbox_arg = True
+    elif arg == "--lla=true":
+        laa_true = True
+    elif arg == "--lla=false":
+        laa_false = True
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
@@ -239,14 +241,21 @@ if not help_arg and not restore_arg:
             game_content = replace_bytes(game_content, "00050000E80AE50100C74030C0030000",
                                         f"{width_le}E80AE50100C74030{height_le}")
 
+        if not laa_false:
+            if (width > 1920 and height > 1080) or laa_true:
+                # LAA fix (4GB patch), improves stability
+                print("LAA fix for better stability")
+                game_content = replace_bytes(game_content, "0F010B01",
+                                             f"2F010B01")
+
         # HUD fixes
+        print("Fixing HUD")
         game_content = replace_bytes(game_content, "3d000500007505",
                                      f"3d{width_le}7505")
 
         # Hex value below, 68 01, corresponds to 360 and is tied to height of 960.
         # Namely, it's height - 600
         # We need to correct it for the HUD to be placed right
-        print("Fixing HUD")
         fix_height = height - 600
 
         # Convert fix value to little-endian hexadecimal value
@@ -277,6 +286,8 @@ else:
     (width)x(height) sets custom resolution
     --wide_menu (-w) sets menu resolution to be widescreen too, but the menu can get partially cropped
     --letterbox (-l) sets that 4:3 resolution which is the closest to the defined widescreen resolution
+    --lla=true enables LLA fix (4GB patch) that improves stability by allocating 4GB of RAM instead of 2GB; enabled by default if resolution is bigger than 1920x1080
+    --lla=false disables LLA fix even if resolution is bigger than 1920x1080
     --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
     --help (-h) prints help message
     """

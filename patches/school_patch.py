@@ -151,6 +151,8 @@ arguments = sys.argv
 game_path = False
 res_arg = False
 restore_arg = False
+laa_true = False
+laa_false = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
@@ -159,6 +161,10 @@ for arg in arguments:
         res_arg = arg
     elif arg == "--restore" or arg == "-r":
         restore_arg = True
+    elif arg == "--lla=true":
+        laa_true = True
+    elif arg == "--lla=false":
+        laa_false = True
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
@@ -199,6 +205,13 @@ if not help_arg and not restore_arg:
                                    f"402C{width_le}")
         game_content = replace_bytes(game_content, "4030C0030000",
                                    f"4030{height_le}")
+
+        if not laa_false:
+            if (width > 1920 and height > 1080) or laa_true:
+                # LAA fix (4GB patch), improves stability
+                print("LAA fix for better stability")
+                game_content = replace_bytes(game_content, "0F010B01",
+                                             f"2F010B01")
 
         # HUD fixes
         print("Fixing HUD")
@@ -317,6 +330,8 @@ else:
     Patch accepts the following arguments:
     "path/to/the/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
     (width)x(height) sets custom resolution
+    --lla=true enables LLA fix (4GB patch) that improves stability by allocating 4GB of RAM instead of 2GB; enabled by default if resolution is bigger than 1920x1080
+    --lla=false disables LLA fix even if resolution is bigger than 1920x1080
     --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
     --help (-h) prints help message
     """

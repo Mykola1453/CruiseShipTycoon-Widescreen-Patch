@@ -151,6 +151,8 @@ arguments = sys.argv
 game_path = False
 res_arg = False
 restore_arg = False
+laa_true = False
+laa_false = False
 help_arg = False
 for arg in arguments:
     if arg.endswith('.exe'):
@@ -159,6 +161,10 @@ for arg in arguments:
         res_arg = arg
     elif arg == "--restore" or arg == "-r":
         restore_arg = True
+    elif arg == "--lla=true":
+        laa_true = True
+    elif arg == "--lla=false":
+        laa_false = True
     elif arg == "--help" or arg == "-h":
         help_arg = True
 
@@ -195,6 +201,13 @@ if not help_arg and not restore_arg:
         game_content = replace_bytes(game_content, "c7402800050000", f"c74028{width_le}")
         game_content = replace_bytes(game_content, "c7402cc0030000", f"c7402c{height_le}")
 
+        if not laa_false:
+            if (width > 1920 and height > 1080) or laa_true:
+                # LAA fix (4GB patch), improves stability
+                print("LAA fix for better stability")
+                game_content = replace_bytes(game_content, "0F010B01",
+                                             f"2F010B01")
+
         # HUD fixes
         game_content = replace_bytes(game_content, "740e3d00050000", f"740e3d{width_le}")
         game_content = replace_bytes(game_content, "0f84e70000003d00050000", f"0f84e70000003d{width_le}")
@@ -230,10 +243,13 @@ else:
     help_msg = """
     This is a patch that replaces the default 1280x960 (4:3) resolution with a widescreen one, and fixes the game's HUD to accommodate the new resolution.
     Run it in the root of the game to set the resolution to your screen's resolution.
+    Menu resolution is the same as in-game resolution.
     (On Linux, you'll need to have pyautogui pip package to detect your screen resolution, otherwise you can define it manually, as explained below)\n
     Patch accepts the following arguments:
     "path/to/the/game.exe" defines path to the game's exe (not needed if the patch is already in the game folder)
     (width)x(height) sets custom resolution
+    --lla=true enables LLA fix (4GB patch) that improves stability by allocating 4GB of RAM instead of 2GB; enabled by default if resolution is bigger than 1920x1080
+    --lla=false disables LLA fix even if resolution is bigger than 1920x1080
     --restore (-r) if backup file is present, restores the game exe's backup and deletes user settings
     --help (-h) prints help message
     """
