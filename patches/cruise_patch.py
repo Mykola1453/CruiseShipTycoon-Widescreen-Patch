@@ -247,6 +247,9 @@ if not help_arg and not restore_arg:
                 print("LAA fix for better stability")
                 game_content = replace_bytes(game_content, "0F010B01",
                                              f"2F010B01")
+        else:
+            if (width >= 2560 or height >= 1440):
+                print("LAA fix is disabled, stability is not guaranteed")
 
         # HUD fixes
         print("Fixing HUD")
