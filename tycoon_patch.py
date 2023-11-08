@@ -82,7 +82,6 @@ def get_res(res=False):
     tested_resolutions = {
         "1280x720": (1280, 720),
         "1280x800": (1280, 800),
-        "1280x960": (1280, 960),
         "1360x768": (1360, 768),
         "1366x768": (1366, 768),
         "1600x900": (1600, 900),
@@ -174,6 +173,7 @@ for arg in arguments:
 if not game_path:
     # When adding new game, don't forget to update array here
     known_exes = [
+        "SkiGame.exe",
         "CruiseShipTycoon.exe",
         "SC.exe",
         "SchoolTycoon.exe",
@@ -227,6 +227,7 @@ else:
     calculated_crc = calculate_crc(game_path)
 
     known_crcs = {
+        1447773004: "ski",
         1142252342: "cruise", # old version
         3759243516: "cruise", # latest version
         554985168: "challenge", # with copy protection removed
@@ -236,12 +237,14 @@ else:
     }
 
     copy_protected_crcs = {
+        3047680879: "ski",
         695746026: "challenge",
         3801619499: "extreme",
         1814945630: "mall3"
     }
 
     old_crcs = {
+        3298446386: "ski",
         4056039368: "school",
         2176966923: "extreme"
     }
@@ -275,7 +278,10 @@ else:
         height_le = struct.pack('<I', height).hex()
 
         # Perform actions based on the identified game
-        if game_name == "cruise":
+        if game_name == "ski":
+            # Have no idea how to that one yet
+            pass
+        elif game_name == "cruise":
             # Notice if game version is not the latest
             if calculated_crc == 1142252342:
                 print(" FYI: this is not the latest version of the game")
@@ -342,6 +348,10 @@ else:
             # HUD fixes
             game_content = replace_bytes(game_content, "740b3d00050000", f"740b3d{width_le}")
             game_content = replace_bytes(game_content, "741a3d00050000", f"741a3d{width_le}")
+
+            # This moves the options window in-game to the upper left corner, so that it no longer mutes the game
+            game_content = replace_bytes(game_content, "2BC2D1F889442410E8", "2BC231C089442410E8")
+            game_content = replace_bytes(game_content, "8BC5992BC28BE8D1FD", "8BC5992BC28BE831ED")
         elif game_name == "school":
             # In-game resolution
             game_content = replace_bytes(game_content, "402C00050000",
@@ -464,7 +474,8 @@ else:
             game.write(game_content)
 
         print("File has been patched successfully")
-        print("Don't forget to set game resolution to 1280x960 in options!")
+        if game_name != "ski":
+            print("Don't forget to set game resolution to 1280x960 in options!")
     elif calculated_crc in copy_protected_crcs:
         # Identifying the game
         game_name = copy_protected_crcs[calculated_crc]
@@ -479,13 +490,15 @@ else:
             with open(game_path, 'rb') as game:
                 game_content = game.read()
 
-            if game_name == "challenge":
+            if game_name == "ski":
+                game_content = replace_bytes(game_content, "74206A15", "EB206A15")
+            elif game_name == "challenge":
                 game_content = replace_bytes(game_content, "E8D8FDFFFF85C07547", "E8D8FDFFFF85C0EB47")
-            if game_name == "extreme":
+            elif game_name == "extreme":
                 game_content = replace_bytes(game_content,
                                              "752D84C08BCF7427A014E06900908D64240084C074198A1980CB200C203AD8750E8A440E014184C0746E",
                                              "909084C08BCF9090A014E06900908D64240084C090908A1980CB200C203AD890908A440E014184C0EB6E")
-            if game_name == "mall3":
+            elif game_name == "mall3":
                 game_content = replace_bytes(game_content, "8B35B0F26B00EB09", "8B35B0F26B00EB2B")
 
             with open(game_path, 'wb') as game:
@@ -493,6 +506,7 @@ else:
             print("Disk check was removed")
             print("Re-run this patch to change resolution of the game")
     elif calculated_crc in old_crcs:
+        # For Ski Resort Tycoon: https://www.patches-scrolls.de/patch/3781/7/30965
         print('This is an old version of the game!')
         print('Update the game and run the patch again.')
     else:
