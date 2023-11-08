@@ -175,11 +175,12 @@ if not game_path:
     known_exes = [
         "SkiGame.exe",
         "CruiseShipTycoon.exe",
+        "MC.exe",
         "SC.exe",
         "SchoolTycoon.exe",
         "SRE.exe",
-        "Wildfire.exe",
-        "Mall3Game.exe"
+        "Mall3Game.exe",
+        "Wildfire.exe"
     ]
 
     # Check if each file exists
@@ -202,6 +203,7 @@ List of supported games:
     - School Tycoon (2004), replaces 1280x960 resolution
     - Ski Resort Extreme (2004), replaces 1280x960 resolution
     - Mall Tycoon 3 (2005), replaces 1280x960 resolution
+    - Wildfire (2005), replaces 1280x960 resolution
         """
     print(games_msg)
 elif help_arg:
@@ -229,25 +231,27 @@ else:
 
     known_crcs = {
         1447773004: "ski",
+        2552423476: "medieval",
         1142252342: "cruise", # old version
         3759243516: "cruise", # latest version
-        554985168: "challenge", # with copy protection removed
+        554985168: "challenge",
         490347772: "school",
         3371513462: "extreme",
-        667719983: "wildfire",
-        495043694: "mall3"
+        495043694: "mall3",
+        667719983: "wildfire"
     }
 
     copy_protected_crcs = {
         3047680879: "ski",
         695746026: "challenge",
         3801619499: "extreme",
-        1646831127: "wildfire",
-        1814945630: "mall3"
+        1814945630: "mall3",
+        1646831127: "wildfire"
     }
 
     old_crcs = {
         3298446386: "ski",
+        1756356010: "medieval",
         4056039368: "school",
         2176966923: "extreme"
     }
@@ -453,7 +457,7 @@ else:
 
             # Removes displaced frame in a classroom view
             game_content = replace_bytes(game_content, "313238307839363000", f"000000000000000000")
-        elif game_name == "extreme" or game_name == "wildfire":
+        elif game_name == "extreme" or game_name == "wildfire" or game_name == "medieval":
             # In-game resolution
             game_content = replace_bytes(game_content, "c7402c00050000",
                                          f"c7402c{width_le}")
