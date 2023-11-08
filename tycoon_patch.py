@@ -178,6 +178,7 @@ if not game_path:
         "SC.exe",
         "SchoolTycoon.exe",
         "SRE.exe",
+        "Wildfire.exe",
         "Mall3Game.exe"
     ]
 
@@ -233,6 +234,7 @@ else:
         554985168: "challenge", # with copy protection removed
         490347772: "school",
         3371513462: "extreme",
+        667719983: "wildfire",
         495043694: "mall3"
     }
 
@@ -240,6 +242,7 @@ else:
         3047680879: "ski",
         695746026: "challenge",
         3801619499: "extreme",
+        1646831127: "wildfire",
         1814945630: "mall3"
     }
 
@@ -450,7 +453,7 @@ else:
 
             # Removes displaced frame in a classroom view
             game_content = replace_bytes(game_content, "313238307839363000", f"000000000000000000")
-        elif game_name == "extreme":
+        elif game_name == "extreme" or game_name == "wildfire":
             # In-game resolution
             game_content = replace_bytes(game_content, "c7402c00050000",
                                          f"c7402c{width_le}")
@@ -498,6 +501,8 @@ else:
                 game_content = replace_bytes(game_content,
                                              "752D84C08BCF7427A014E06900908D64240084C074198A1980CB200C203AD8750E8A440E014184C0746E",
                                              "909084C08BCF9090A014E06900908D64240084C090908A1980CB200C203AD890908A440E014184C0EB6E")
+            elif game_name == "wildfire":
+                game_content = replace_bytes(game_content, "0F8518FFFFFFE8", "E919FFFFFFFFE8")
             elif game_name == "mall3":
                 game_content = replace_bytes(game_content, "8B35B0F26B00EB09", "8B35B0F26B00EB2B")
 
