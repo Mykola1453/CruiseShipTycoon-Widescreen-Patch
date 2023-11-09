@@ -175,6 +175,7 @@ if not game_path:
     known_exes = [
         "SkiGame.exe",
         "CruiseShipTycoon.exe",
+        "Skate3.exe",
         "MC.exe",
         "SC.exe",
         "SchoolTycoon.exe",
@@ -200,6 +201,7 @@ elif games_arg:
 List of supported games:
     - Cruise Ship Tycoon (2003), replaces 1280x960 resolution
     - Outdoor Life: Sportsman's Challenge (2004), replaces 1280x960 resolution
+    - Medieval Conquest (2004), replaces 1280x960 resolution
     - School Tycoon (2004), replaces 1280x960 resolution
     - Ski Resort Extreme (2004), replaces 1280x960 resolution
     - Mall Tycoon 3 (2005), replaces 1280x960 resolution
@@ -234,6 +236,7 @@ else:
         2552423476: "medieval",
         1142252342: "cruise", # old version
         3759243516: "cruise", # latest version
+        2787501884: "skateboard2004",
         554985168: "challenge",
         490347772: "school",
         3371513462: "extreme",
@@ -286,6 +289,7 @@ else:
 
         # Perform actions based on the identified game
         if game_name == "ski":
+            # This game requires Windows XP compatibility mode on Windows, otherwise it glitches
             # Have no idea how to that one yet
             pass
         elif game_name == "cruise":
@@ -348,17 +352,23 @@ else:
 
             game_content = replace_bytes(game_content, "BD68010000C7", f"BD{fix_h_le}C7")
             game_content = replace_bytes(game_content, "000500007509BD68010000", f"{width_le}7509BD{fix_h_le}")
-        elif game_name == "challenge":
+        elif game_name == "challenge" or game_name == "skateboard2004":
             game_content = replace_bytes(game_content, "c7402c00050000", f"c7402c{width_le}")
             game_content = replace_bytes(game_content, "c74030c0030000", f"c74030{height_le}")
 
             # HUD fixes
             game_content = replace_bytes(game_content, "740b3d00050000", f"740b3d{width_le}")
-            game_content = replace_bytes(game_content, "741a3d00050000", f"741a3d{width_le}")
+            if game_name == "skateboard2004":
+                # Remove black bars
+                # Move buttons below to the left
+                # Fix cursor
+                pass
+            else:
+                game_content = replace_bytes(game_content, "741a3d00050000", f"741a3d{width_le}")
 
-            # This moves the options window in-game to the upper left corner, so that it no longer mutes the game
-            game_content = replace_bytes(game_content, "2BC2D1F889442410E8", "2BC231C089442410E8")
-            game_content = replace_bytes(game_content, "8BC5992BC28BE8D1FD", "8BC5992BC28BE831ED")
+                # This moves the options window in-game to the upper left corner, so that it no longer mutes the game
+                game_content = replace_bytes(game_content, "2BC2D1F889442410E8", "2BC231C089442410E8")
+                game_content = replace_bytes(game_content, "8BC5992BC28BE8D1FD", "8BC5992BC28BE831ED")
         elif game_name == "school":
             # In-game resolution
             game_content = replace_bytes(game_content, "402C00050000",
