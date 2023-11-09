@@ -200,8 +200,8 @@ elif games_arg:
     games_msg = """
 List of supported games:
     - Cruise Ship Tycoon (2003), replaces 1280x960 resolution
-    - Outdoor Life: Sportsman's Challenge (2004), replaces 1280x960 resolution
     - Medieval Conquest (2004), replaces 1280x960 resolution
+    - Outdoor Life: Sportsman's Challenge (2004), replaces 1280x960 resolution
     - School Tycoon (2004), replaces 1280x960 resolution
     - Ski Resort Extreme (2004), replaces 1280x960 resolution
     - Mall Tycoon 3 (2005), replaces 1280x960 resolution
